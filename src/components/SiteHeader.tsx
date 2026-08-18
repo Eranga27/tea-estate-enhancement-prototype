@@ -24,7 +24,7 @@ export function SiteHeader({ activeHref }: SiteHeaderProps) {
       <header className="sticky top-0 z-40 w-full border-b border-gold/20 bg-forest shadow-md">
         <div className="mx-auto flex max-w-estate items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-10">
           {/* Logo / Crest */}
-          <Link to="/" className="flex items-center gap-3" aria-label={`${estate.name} — home`}>
+          <Link to="/explore" className="flex items-center gap-3" aria-label={`${estate.name} — home`}>
             <Crest className="h-8 w-6 sm:h-10 sm:w-8 shrink-0" tone="dark" />
             <span className="flex flex-col">
               <span className="font-serif text-sm font-semibold uppercase tracking-nav text-gold-light sm:text-base">

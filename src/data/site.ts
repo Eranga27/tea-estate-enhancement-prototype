@@ -11,51 +11,27 @@ export const estate = {
 
 export const navigation: NavItem[] = [
   { label: 'The Estate', href: '/explore' },
-  { label: 'Chambers', href: '/chambers' },
-  { label: 'Experiences', href: '/experiences' },
-  { label: 'Dining', href: '/dining' },
-  { label: 'Occasions', href: '/occasions' },
-  { label: 'Private Estate', href: '/buyout' },
+  { label: 'Tea Journey', href: '/tea-journey' },
   { label: 'Destination', href: '/destination' },
-  { label: 'Book', href: '/book' },
+  { label: 'Design My Escape', href: '/plan' },
+  { label: 'Book', href: '/book' }
 ];
 
 export const footerColumns: FooterColumn[] = [
   {
-    title: 'The Estate',
+    title: 'The Journey',
     links: [
       { label: 'Estate Explorer', href: '/explore' },
-      { label: 'Private Estate Buyout', href: '/buyout' },
-      { label: 'Estate Gallery', href: '/gallery' },
-      { label: 'The Journal', href: '/journal' },
-    ]
-  },
-  {
-    title: 'Stay',
-    links: [
-      { label: "Founder's Suite", href: '/chambers/founders' },
-      { label: 'Highlands Suite', href: '/chambers/highlands' },
-      { label: 'Carriage House', href: '/chambers/carriage' },
-      { label: 'All Chambers', href: '/chambers' },
-    ]
-  },
-  {
-    title: 'Experiences',
-    links: [
-      { label: 'Experiences', href: '/experiences' },
-      { label: 'Dining & Table', href: '/dining' },
-      { label: 'Occasions', href: '/occasions' },
-      { label: 'Destination Galaha', href: '/destination' },
+      { label: 'The Tea Journey', href: '/tea-journey' },
+      { label: 'Destination Galaha', href: '/destination' }
     ]
   },
   {
     title: 'Plan & Book',
     links: [
       { label: 'Design My Escape', href: '/plan' },
-      { label: 'Direct Booking', href: '/book' },
-      { label: 'Packages & Offers', href: '/offers' },
-      { label: 'Send Enquiry', href: '/enquire' },
-      { label: 'FAQs', href: '/faq' },
+      { label: 'Premium Direct Booking', href: '/book' },
+      { label: 'Pre-Arrival Experience', href: '/pre-arrival' }
     ]
   }
 ];
