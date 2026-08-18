@@ -21,39 +21,21 @@ export function SiteHeader({ activeHref }: SiteHeaderProps) {
 
   return (
     <>
-      {/* Top Banner indicating Prototype state */}
-      <div className="w-full border-b border-gold/30 bg-forest-deep px-4 py-1.5 text-center font-sans text-[10px] font-semibold uppercase tracking-widest text-gold-light">
-        <span className="inline-flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
-          Interactive Digital Enhancement Prototype · Concept Only
-        </span>
-      </div>
-
       <header className="sticky top-0 z-40 w-full border-b border-gold/20 bg-forest shadow-md">
-        <div className="mx-auto flex max-w-estate items-center justify-between gap-4 px-6 py-3.5 sm:px-8 lg:px-14">
+        <div className="mx-auto flex max-w-estate items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-10">
           {/* Logo / Crest */}
-          <Link to="/" className="flex items-center gap-3 sm:gap-4" aria-label={`${estate.name} — home`}>
-            <Crest className="h-11 w-8 shrink-0 sm:h-14 sm:w-11" tone="dark" />
+          <Link to="/" className="flex items-center gap-3" aria-label={`${estate.name} — home`}>
+            <Crest className="h-8 w-6 sm:h-10 sm:w-8 shrink-0" tone="dark" />
             <span className="flex flex-col">
-              <span className="font-serif text-base font-semibold uppercase tracking-nav text-gold-light sm:text-lg">
+              <span className="font-serif text-sm font-semibold uppercase tracking-nav text-gold-light sm:text-base">
                 {estate.name}
-              </span>
-              <span className="mt-0.5 hidden items-center gap-3 text-[11px] text-ivory/70 md:flex">
-                <span className="flex items-center gap-1">
-                  <PhoneIcon className="h-3 w-3 text-gold" strokeWidth={1.5} />
-                  {estate.phone}
-                </span>
-                <span className="flex items-center gap-1">
-                  <MapPinIcon className="h-3 w-3 text-gold" strokeWidth={1.5} />
-                  {estate.region}
-                </span>
               </span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav aria-label="Primary" className="hidden lg:block">
-            <ul className="flex items-center gap-6 xl:gap-7">
+            <ul className="flex items-center gap-4 xl:gap-5">
               {navigation.map((item) => {
                 const isActive = currentPath === item.href;
                 const isPlanButton = item.href === '/plan';
@@ -63,12 +45,12 @@ export function SiteHeader({ activeHref }: SiteHeaderProps) {
                     <li key={item.href}>
                       <Link
                         to={item.href}
-                        className="relative inline-flex items-center gap-2 border border-gold bg-gold/15 px-4 py-2 font-sans text-xs font-semibold uppercase tracking-button text-gold-light transition-all hover:bg-gold hover:text-forest-dark"
+                        className="relative inline-flex items-center gap-1.5 border border-gold bg-gold/15 px-3 py-1.5 font-sans text-[10px] font-semibold uppercase tracking-button text-gold-light transition-all hover:bg-gold hover:text-forest-dark"
                       >
-                        <CalendarIcon className="h-3.5 w-3.5" />
+                        <CalendarIcon className="h-3 w-3" />
                         <span>Plan Your Stay</span>
                         {totalSelectedItems > 0 && (
-                          <span className="ml-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[9px] font-bold text-forest-dark">
+                          <span className="ml-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-gold text-[8px] font-bold text-forest-dark">
                             {totalSelectedItems}
                           </span>
                         )}
@@ -82,8 +64,8 @@ export function SiteHeader({ activeHref }: SiteHeaderProps) {
                     <Link
                       to={item.href}
                       aria-current={isActive ? 'page' : undefined}
-                      className={`font-serif text-[13px] font-semibold uppercase tracking-nav transition-colors duration-200 ease-estate ${
-                        isActive ? 'text-white underline decoration-gold underline-offset-8' : 'text-gold-light hover:text-white'
+                      className={`font-serif text-[11px] font-semibold uppercase tracking-nav transition-colors duration-200 ease-estate ${
+                        isActive ? 'text-white underline decoration-gold underline-offset-4' : 'text-gold-light hover:text-white'
                       }`}
                     >
                       {item.label}

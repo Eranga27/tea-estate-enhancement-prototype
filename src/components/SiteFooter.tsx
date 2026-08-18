@@ -66,7 +66,7 @@ export function SiteFooter() {
           <div className="flex items-center gap-2">
             <ShieldCheckIcon className="h-4 w-4 text-gold" />
             <p className="u-eyebrow text-[9px] text-ivory/60">
-              The Tea Bungalow Prototype · Concept Proof-of-Concept
+              The Tea Bungalow · Galaha, Sri Lanka
             </p>
           </div>
           <p className="u-eyebrow text-[9px] text-ivory/45">© 2026 The Tea Bungalow · Galaha</p>

@@ -10,54 +10,56 @@ export const estate = {
 };
 
 export const navigation: NavItem[] = [
-  { label: 'Home', href: '/' },
   { label: 'The Estate', href: '/explore' },
-  { label: 'Stay', href: '/chambers' },
+  { label: 'Chambers', href: '/chambers' },
   { label: 'Experiences', href: '/experiences' },
+  { label: 'Dining', href: '/dining' },
+  { label: 'Occasions', href: '/occasions' },
   { label: 'Private Estate', href: '/buyout' },
   { label: 'Destination', href: '/destination' },
-  { label: 'Direct Booking', href: '/book' },
-  { label: 'Plan Your Stay', href: '/plan' }
+  { label: 'Book', href: '/book' },
 ];
-
 
 export const footerColumns: FooterColumn[] = [
   {
-    title: 'The House',
+    title: 'The Estate',
     links: [
-      { label: 'The Estate', href: '/explore' },
-      { label: 'Estate Buyout', href: '/buyout' },
-      { label: 'Destination Galaha', href: '/destination' },
-      { label: 'Ask Concierge', href: '/plan' }
+      { label: 'Estate Explorer', href: '/explore' },
+      { label: 'Private Estate Buyout', href: '/buyout' },
+      { label: 'Estate Gallery', href: '/gallery' },
+      { label: 'The Journal', href: '/journal' },
     ]
   },
   {
-    title: 'Chambers',
+    title: 'Stay',
     links: [
       { label: "Founder's Suite", href: '/chambers/founders' },
       { label: 'Highlands Suite', href: '/chambers/highlands' },
       { label: 'Carriage House', href: '/chambers/carriage' },
-      { label: 'All Chambers', href: '/chambers' }
+      { label: 'All Chambers', href: '/chambers' },
     ]
   },
   {
     title: 'Experiences',
     links: [
-      { label: 'Tea Estate Walk', href: '/experiences' },
-      { label: 'Private Tea Tasting', href: '/experiences' },
-      { label: 'Pekoe Trail', href: '/experiences' },
-      { label: 'Plan Your Stay', href: '/plan' }
+      { label: 'Experiences', href: '/experiences' },
+      { label: 'Dining & Table', href: '/dining' },
+      { label: 'Occasions', href: '/occasions' },
+      { label: 'Destination Galaha', href: '/destination' },
     ]
   },
   {
-    title: 'Distribution & Direct',
+    title: 'Plan & Book',
     links: [
-      { label: 'Direct Booking Engine', href: '/book' },
-      { label: 'Distribution Architecture', href: '/distribution' },
-      { label: 'Send Stay Enquiry', href: '/enquire' }
+      { label: 'Design My Escape', href: '/plan' },
+      { label: 'Direct Booking', href: '/book' },
+      { label: 'Packages & Offers', href: '/offers' },
+      { label: 'Send Enquiry', href: '/enquire' },
+      { label: 'FAQs', href: '/faq' },
     ]
   }
 ];
+
 
 
 export const imagery = {

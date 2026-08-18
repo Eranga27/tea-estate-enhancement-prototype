@@ -1,3 +1,8 @@
+/**
+ * DEPRECATED: This static presentation component is superseded by the new
+ * interactive architecture (Chambers gallery, Design My Escape).
+ * Maintained here for reference and content extraction.
+ */
 import React from 'react';
 import { Container, Section } from '../Layout';
 import { SectionHeading } from '../SectionHeading';

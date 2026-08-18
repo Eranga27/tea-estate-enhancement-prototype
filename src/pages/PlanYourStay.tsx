@@ -1,46 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarIcon,
   UsersIcon,
-  HeartIcon,
-  CompassIcon,
-  HomeIcon,
-  CoffeeIcon,
-  SparklesIcon,
-  CheckIcon,
-  PlusIcon,
-  Trash2Icon,
   ChevronRightIcon,
   ChevronLeftIcon,
-  SendIcon
+  CheckIcon,
+  PlusIcon,
+  SendIcon,
 } from 'lucide-react';
 import { Container, Section } from '../components/Layout';
-import { SectionHeading } from '../components/SectionHeading';
 import { SiteHeader } from '../components/SiteHeader';
 import { SiteFooter } from '../components/SiteFooter';
-import { Button } from '../components/Button';
-import { GoldRule, DiamondRule, Crest } from '../components/Ornament';
+import { GoldRule, Crest } from '../components/Ornament';
 import { useStayPlan } from '../context/StayPlanContext';
-import { chambers, experiences } from '../data/site';
+import { chambers, experiences, imagery } from '../data/site';
+import { beyondDestinations } from '../data/destination';
+import { photography } from '../data/homepage';
+
+const ease = [0.16, 1, 0.3, 1] as const;
 
 const travelStyles = [
-  { id: 'Couple', label: 'Couple', desc: 'Quiet romance, candlelit verandah dining, and private suite seclusion.' },
-  { id: 'Family', label: 'Family Retreat', desc: 'Connecting suites, garden games, pool afternoons, and family tea walks.' },
-  { id: 'Friends', label: 'Friends Gathering', desc: 'Shared tables, billiards room evenings, and group Pekoe trail hikes.' },
-  { id: 'Private Escape', label: 'Private Solo Escape', desc: 'Unhurried solitude, reading alcoves, mist watching, and deep rest.' },
-  { id: 'Celebration', label: 'Milestone Celebration', desc: 'Private buyout option, lawn champagne receptions, and custom dinners.' }
+  { id: 'disappear', label: 'Disappear', desc: 'A slower few days among tea, gardens and quiet mornings.', image: photography.verandah },
+  { id: 'taste', label: 'Taste', desc: 'A sensory journey through Ceylon tea and highland gastronomy.', image: photography.teaService },
+  { id: 'explore', label: 'Explore', desc: 'Your days move beyond the bungalow, through tea country and the Central Highlands.', image: photography.teaFields },
+  { id: 'reconnect', label: 'Reconnect', desc: 'A private escape to spend unbroken time with those who matter.', image: photography.billiards },
+  { id: 'celebrate', label: 'Celebrate', desc: 'A private escape shaped around a moment worth remembering.', image: photography.pavilion },
+  { id: 'discover', label: 'Discover', desc: 'A journey into the heritage and history of the Ceylon tea era.', image: photography.teaFactory }
 ];
 
-const interestOptions = [
-  { id: 'tea', label: 'Tea & Tasting', desc: 'Dawn plucking, tea factory craft, and single-origin tastings.' },
-  { id: 'nature', label: 'Nature & Wildlife', desc: 'Botanical garden walks, birding at sunrise, and forest trails.' },
-  { id: 'table', label: 'Food & Dining', desc: 'Sri Lankan highland curry feasts, garden BBQs, and afternoon tea.' },
-  { id: 'slow', label: 'Slow Living', desc: 'Verandah reading, granite pool swims, and unhurried mornings.' },
-  { id: 'heritage', label: 'Heritage & History', desc: 'Colonial archives, 1899 bungalow history, and Kandy temples.' },
-  { id: 'adventure', label: 'Pekoe Trail & Hikes', desc: 'Guided trail hikes along scenic Ceylon railway tea routes.' },
-  { id: 'wellness', label: 'Wellness & Rest', desc: 'Open-air veranda massage, yoga on the lawn, and quiet mists.' }
+const diningOptions = [
+  { id: 'breakfast', label: 'Estate Breakfasts', desc: 'Ceylon tea, tropical fruit, hoppers, and fresh-baked bread on the verandah.', image: photography.pavilion },
+  { id: 'garden', label: 'Garden Dining', desc: 'Al fresco meals beneath the garden pavilion from estate-grown produce.', image: photography.garden },
+  { id: 'tea', label: 'Afternoon Tea', desc: 'Freshly brewed Ceylon grades, accompanied by the estate cook\'s pastries.', image: photography.teaService },
+  { id: 'dinner', label: 'Private Dinner', desc: 'Lantern-lit dinners that extend into the evening. Sri Lankan curries or continental.', image: photography.billiards }
+];
+
+const occasionOptions = [
+  { id: 'none', label: 'Just an Escape' },
+  { id: 'honeymoon', label: 'Honeymoon' },
+  { id: 'anniversary', label: 'Anniversary' },
+  { id: 'birthday', label: 'Birthday' },
+  { id: 'family', label: 'Family Gathering' },
+  { id: 'retreat', label: 'Private Retreat' },
+  { id: 'corporate', label: 'Corporate Retreat' }
 ];
 
 export function PlanYourStay() {
@@ -51,459 +55,184 @@ export function PlanYourStay() {
     setDates,
     setGuests,
     setTravelStyle,
-    toggleInterest,
     toggleChamber,
     toggleExperience,
-    totalSelectedItems
+    toggleDestination,
+    toggleDining,
+    setOccasion
   } = useStayPlan();
 
-  // Dynamic Itinerary Generator (Deterministic Logic based on user's selections)
-  const generateItinerary = () => {
-    const days = [];
-    const chosenExperiences = experiences.filter((e) => plan.selectedExperienceIds.includes(e.id));
-    const primaryInterest = plan.interests[0] || 'tea';
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
 
-    // Day 1
-    days.push({
-      day: 'DAY 01',
-      title: 'Arrival & Welcome to Ceylon Tea Country',
-      items: [
-        'Chauffeur arrival up Moragolla Road into upland Galaha.',
-        'Welcome Estate Tea & Ceylon spiced refreshments on the verandah.',
-        'Settle into selected chambers as evening mist rolls over the valley.',
-        'Lantern-lit three-course dinner served in the Tea Pavilion.'
-      ]
-    });
+  const nextStep = () => setCurrentStep(prev => Math.min(8, prev + 1));
+  const prevStep = () => setCurrentStep(prev => Math.max(1, prev - 1));
 
-    // Day 2
-    const day2Items = [
-      '06:30 AM — Dawn Tea Walk through 100-year-old tea terraces.',
-      '08:30 AM — Ceylon highland breakfast with fresh passionfruit & wood-fired hopper cart.'
-    ];
+  const steps = [
+    { num: 1, label: 'Style', title: 'What brings you to the highlands?' },
+    { num: 2, label: 'Stay', title: 'Your Stay' },
+    { num: 3, label: 'Chamber', title: 'Where would you like to stay?' },
+    { num: 4, label: 'Experiences', title: 'What would you like to experience?' },
+    { num: 5, label: 'Destinations', title: 'Beyond the Bungalow' },
+    { num: 6, label: 'Dining', title: 'Dining Preferences' },
+    { num: 7, label: 'Occasion', title: 'Is there something to celebrate?' },
+    { num: 8, label: 'Escape', title: 'Your Tea Bungalow Escape' }
+  ];
 
-    if (chosenExperiences.length > 0) {
-      day2Items.push(`11:00 AM — ${chosenExperiences[0].title}: ${chosenExperiences[0].shortDescription}`);
-    } else {
-      day2Items.push('11:00 AM — Guided walk to neighboring working tea factory.');
-    }
-
-    day2Items.push('03:30 PM — Traditional Afternoon High Tea on the Long Verandah.');
-    day2Items.push('07:30 PM — Evening snooker in the Billiards Room followed by private dinner.');
-    days.push({ day: 'DAY 02', title: 'Deep Estate Living & Tea Craft', items: day2Items });
-
-    // Day 3
-    const day3Items = [
-      '08:00 AM — Slow morning breakfast on your private verandah.',
-      plan.interests.includes('adventure')
-        ? '10:00 AM — Guided Pekoe Trail section hike along the Galaha ridge.'
-        : '10:00 AM — Relax by the granite pool and tropical gardens.',
-      '01:00 PM — Lawn picnic lunch with view of Hantana Mountain Ridge.'
-    ];
-
-    if (chosenExperiences.length > 1) {
-      day3Items.push(`04:00 PM — ${chosenExperiences[1].title}: ${chosenExperiences[1].shortDescription}`);
-    } else {
-      day3Items.push('04:00 PM — Private Ceylon single-origin tea tasting with master taster.');
-    }
-
-    day3Items.push('07:30 PM — Farewell Candlelit Dinner under the stars.');
-    days.push({ day: 'DAY 03', title: 'Ridge Exploration & Serene Relaxation', items: day3Items });
-
-    return days;
-  };
-
-  const itinerary = generateItinerary();
+  const currentStepData = steps.find(s => s.num === currentStep) || steps[0];
 
   return (
-    <div className="min-h-screen w-full bg-ivory text-ink">
+    <div className="min-h-screen w-full bg-ivory text-ink flex flex-col">
       <SiteHeader activeHref="/plan" />
 
-      {/* Header Cover */}
-      <Section surface="parchment" spacing="loose">
-        <Container>
-          <div className="mx-auto max-w-3xl text-center">
-            <Crest className="mx-auto h-16 w-12" tone="light" />
-            <SectionHeading
-              eyebrow="Interactive Experience Builder"
-              title="Plan Your Stay"
-              lede="Shape your stay around mist, tea, and unhurried hospitality. Select your dates, travel style, chambers, and curated experiences."
-              align="center"
-              scale="display"
-              ornament="diamond"
-              as="h1"
-              className="mt-6"
-            />
-          </div>
+      {/* Main Container */}
+      <div className="flex-1 flex flex-col lg:flex-row mt-16 sm:mt-20 lg:mt-24">
+        
+        {/* Left/Top Progress Indicator */}
+        <div className="lg:w-1/4 lg:fixed lg:h-[calc(100vh-6rem)] lg:overflow-y-auto border-b lg:border-b-0 lg:border-r border-gold/20 bg-ivory-parchment p-6 sm:p-10 z-10 hidden lg:block">
+          <Crest className="h-12 w-10 text-forest mb-12" tone="dark" />
+          <h1 className="font-serif text-2xl text-forest tracking-tight mb-8">Design My Escape</h1>
+          <ul className="space-y-6">
+            {steps.map((step) => {
+              const isActive = currentStep === step.num;
+              const isPast = currentStep > step.num;
+              return (
+                <li key={step.num} className="flex items-center gap-4">
+                  <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${isActive ? 'bg-gold' : isPast ? 'bg-forest/40' : 'bg-gold/20'}`} />
+                  <button 
+                    onClick={() => setCurrentStep(step.num)}
+                    disabled={!isPast && !isActive}
+                    className={`font-sans text-[11px] uppercase tracking-[0.2em] transition-colors duration-300 text-left ${isActive ? 'text-forest font-semibold' : isPast ? 'text-forest/60 hover:text-forest' : 'text-ink-faint'}`}
+                  >
+                    {step.label}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
-          {/* Stepper Progress Bar */}
-          <div className="mt-12 border-t border-gold/30 pt-6">
-            <ol className="flex flex-wrap items-center justify-between gap-4 text-center">
-              {[
-                { num: 1, label: 'Dates' },
-                { num: 2, label: 'Guests' },
-                { num: 3, label: 'Style' },
-                { num: 4, label: 'Interests' },
-                { num: 5, label: 'Chambers' },
-                { num: 6, label: 'Experiences' },
-                { num: 7, label: 'Itinerary' },
-                { num: 8, label: 'Summary' }
-              ].map((step) => {
-                const isActive = currentStep === step.num;
-                const isDone = currentStep > step.num;
-                return (
-                  <li key={step.num} className="flex flex-1 flex-col items-center min-w-[70px]">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(step.num)}
-                      className={`flex h-8 w-8 items-center justify-center font-sans text-xs font-semibold transition-all ${
-                        isActive
-                          ? 'border-2 border-gold bg-forest text-gold-light scale-110 shadow-md'
-                          : isDone
-                          ? 'bg-gold text-forest'
-                          : 'border border-gold/30 bg-ivory text-ink-muted'
-                      }`}
-                    >
-                      {isDone ? <CheckIcon className="h-4 w-4" /> : step.num}
-                    </button>
-                    <span
-                      className={`mt-2 font-serif text-xs ${
-                        isActive ? 'font-semibold text-forest' : 'text-ink-muted'
-                      }`}
-                    >
-                      {step.label}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
+        {/* Mobile Progress */}
+        <div className="lg:hidden bg-ivory-parchment border-b border-gold/20 p-4 sticky top-[64px] z-30">
+          <div className="flex items-center justify-between">
+            <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-gold-deep">Step {currentStep} of 8</span>
+            <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-forest font-semibold">{currentStepData.label}</span>
           </div>
-        </Container>
-      </Section>
+          <div className="mt-3 flex gap-1">
+            {steps.map((step) => (
+              <div key={step.num} className={`h-1 flex-1 rounded-full transition-colors duration-300 ${currentStep === step.num ? 'bg-gold' : currentStep > step.num ? 'bg-forest/30' : 'bg-gold/20'}`} />
+            ))}
+          </div>
+        </div>
 
-      {/* Main Step Container */}
-      <Section surface="ivory" spacing="default">
-        <Container className="max-w-5xl">
-          <AnimatePresence mode="wait">
-            {/* STEP 1: DATES */}
+        {/* Right Content Area */}
+        <div className="flex-1 lg:ml-[25%] p-6 sm:p-10 lg:p-20 pb-32">
+          
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.5, ease }}
+            className="max-w-4xl mx-auto"
+          >
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-forest tracking-tight">{currentStepData.title}</h2>
+            <GoldRule className="mt-6 mb-12" width="w-12" />
+
+            {/* STEP 1: TRAVEL STYLE */}
             {currentStep === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/30 bg-ivory-parchment p-8 sm:p-12"
-              >
-                <div className="flex items-center gap-3">
-                  <CalendarIcon className="h-5 w-5 text-gold" />
-                  <span className="u-eyebrow text-[10px] text-gold">Step 01 of 08</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-forest">When would you like to stay?</h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  The bungalow experiences cool highland weather year-round. Select your target check-in & check-out.
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                <div className="mt-8 grid gap-6 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="plan-checkin" className="u-eyebrow block text-xs text-forest">
-                      Check-In Date
-                    </label>
-                    <input
-                      id="plan-checkin"
-                      type="date"
-                      value={plan.dates.checkIn}
-                      onChange={(e) => setDates({ checkIn: e.target.value })}
-                      className="mt-2 w-full border border-gold/40 bg-ivory p-3.5 font-sans text-sm text-ink focus:border-gold focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="plan-checkout" className="u-eyebrow block text-xs text-forest">
-                      Check-Out Date
-                    </label>
-                    <input
-                      id="plan-checkout"
-                      type="date"
-                      value={plan.dates.checkOut}
-                      onChange={(e) => setDates({ checkOut: e.target.value })}
-                      className="mt-2 w-full border border-gold/40 bg-ivory p-3.5 font-sans text-sm text-ink focus:border-gold focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-center justify-between border-t border-gold/20 pt-4">
-                  <span className="font-serif text-base italic text-forest">
-                    Duration: {plan.dates.nights} {plan.dates.nights === 1 ? 'Night' : 'Nights'}
-                  </span>
-                  <span className="text-xs text-ink-faint">Minimum recommended stay: 2–3 nights</span>
-                </div>
-
-                <div className="mt-10 flex justify-end">
-                  <Button variant="primary" size="lg" onClick={() => setCurrentStep(2)}>
-                    Continue to Guests <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {travelStyles.map((style) => {
+                  const isSelected = plan.travelStyle === style.id;
+                  return (
+                    <button
+                      key={style.id}
+                      onClick={() => { setTravelStyle(style.id); setTimeout(nextStep, 400); }}
+                      className={`group relative text-left overflow-hidden border transition-all duration-500 ${isSelected ? 'border-gold ring-1 ring-gold shadow-xl' : 'border-gold/20 hover:border-gold/60'}`}
+                    >
+                      <div className="aspect-[4/5] overflow-hidden bg-forest/5">
+                        <img src={style.image} alt={style.label} className={`w-full h-full object-cover transition-transform duration-700 ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`} />
+                        <div className={`absolute inset-0 bg-forest-dark transition-opacity duration-500 ${isSelected ? 'opacity-40' : 'opacity-20 group-hover:opacity-30'}`} />
+                      </div>
+                      <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-forest-dark/90 via-forest-dark/70 to-transparent">
+                        <h3 className="font-serif text-2xl text-ivory">{style.label}</h3>
+                        <p className={`mt-2 font-sans text-xs leading-relaxed text-ivory/80 transition-opacity duration-500 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>{style.desc}</p>
+                        {isSelected && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-6 right-6 bg-gold text-forest-dark p-1.5 rounded-full">
+                            <CheckIcon className="w-4 h-4" />
+                          </motion.div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             )}
 
-            {/* STEP 2: GUESTS */}
+            {/* STEP 2: STAY */}
             {currentStep === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/30 bg-ivory-parchment p-8 sm:p-12"
-              >
-                <div className="flex items-center gap-3">
-                  <UsersIcon className="h-5 w-5 text-gold" />
-                  <span className="u-eyebrow text-[10px] text-gold">Step 02 of 08</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-forest">Who is travelling with you?</h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  The estate features 6 main chambers plus a detached cottage, hosting up to 12 adult guests.
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                <div className="mt-8 grid gap-8 sm:grid-cols-2">
-                  <div className="border border-gold/25 bg-ivory p-6">
-                    <span className="u-eyebrow text-[10px] text-gold">Adult Guests</span>
-                    <div className="mt-4 flex items-center justify-between">
-                      <button
-                        type="button"
-                        onClick={() => setGuests({ adults: Math.max(1, plan.guests.adults - 1) })}
-                        className="flex h-10 w-10 items-center justify-center border border-gold/40 text-forest hover:bg-gold/15"
-                      >
-                        -
-                      </button>
-                      <span className="font-serif text-3xl font-medium text-forest">{plan.guests.adults}</span>
-                      <button
-                        type="button"
-                        onClick={() => setGuests({ adults: Math.min(12, plan.guests.adults + 1) })}
-                        className="flex h-10 w-10 items-center justify-center border border-gold/40 text-forest hover:bg-gold/15"
-                      >
-                        +
-                      </button>
-                    </div>
+              <div className="space-y-12">
+                <div className="grid gap-8 sm:grid-cols-2">
+                  <div className="border border-gold/30 bg-ivory p-6">
+                    <label className="font-sans text-[10px] uppercase tracking-[0.2em] text-gold-deep block mb-4 flex items-center gap-2"><CalendarIcon className="w-3.5 h-3.5"/> Arrival</label>
+                    <input type="date" value={plan.dates.checkIn} onChange={(e) => setDates({ checkIn: e.target.value })} className="w-full bg-transparent font-serif text-xl text-forest focus:outline-none border-b border-gold/30 pb-2 focus:border-gold transition-colors" />
                   </div>
-
-                  <div className="border border-gold/25 bg-ivory p-6">
-                    <span className="u-eyebrow text-[10px] text-gold">Children</span>
-                    <div className="mt-4 flex items-center justify-between">
-                      <button
-                        type="button"
-                        onClick={() => setGuests({ children: Math.max(0, plan.guests.children - 1) })}
-                        className="flex h-10 w-10 items-center justify-center border border-gold/40 text-forest hover:bg-gold/15"
-                      >
-                        -
-                      </button>
-                      <span className="font-serif text-3xl font-medium text-forest">{plan.guests.children}</span>
-                      <button
-                        type="button"
-                        onClick={() => setGuests({ children: Math.min(6, plan.guests.children + 1) })}
-                        className="flex h-10 w-10 items-center justify-center border border-gold/40 text-forest hover:bg-gold/15"
-                      >
-                        +
-                      </button>
-                    </div>
+                  <div className="border border-gold/30 bg-ivory p-6">
+                    <label className="font-sans text-[10px] uppercase tracking-[0.2em] text-gold-deep block mb-4 flex items-center gap-2"><CalendarIcon className="w-3.5 h-3.5"/> Departure</label>
+                    <input type="date" value={plan.dates.checkOut} onChange={(e) => setDates({ checkOut: e.target.value })} className="w-full bg-transparent font-serif text-xl text-forest focus:outline-none border-b border-gold/30 pb-2 focus:border-gold transition-colors" />
                   </div>
                 </div>
 
-                <div className="mt-10 flex justify-between">
-                  <Button variant="outline" onClick={() => setCurrentStep(1)}>
-                    <ChevronLeftIcon className="mr-2 h-4 w-4" /> Back
-                  </Button>
-                  <Button variant="primary" size="lg" onClick={() => setCurrentStep(3)}>
-                    Continue to Travel Style <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
+                <div className="border border-gold/30 bg-ivory p-8 sm:p-10">
+                  <label className="font-sans text-[10px] uppercase tracking-[0.2em] text-gold-deep block mb-6 flex items-center gap-2"><UsersIcon className="w-3.5 h-3.5"/> Guests</label>
+                  <div className="grid sm:grid-cols-2 gap-8">
+                    <div className="flex items-center justify-between border-b border-gold/20 pb-4">
+                      <span className="font-serif text-lg text-forest">Adults</span>
+                      <div className="flex items-center gap-4">
+                        <button onClick={() => setGuests({ adults: Math.max(1, plan.guests.adults - 1) })} className="w-8 h-8 flex items-center justify-center border border-gold/40 text-forest hover:bg-gold/10 transition-colors">-</button>
+                        <span className="font-serif text-xl w-6 text-center text-forest">{plan.guests.adults}</span>
+                        <button onClick={() => setGuests({ adults: Math.min(12, plan.guests.adults + 1) })} className="w-8 h-8 flex items-center justify-center border border-gold/40 text-forest hover:bg-gold/10 transition-colors">+</button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between border-b border-gold/20 pb-4">
+                      <span className="font-serif text-lg text-forest">Children</span>
+                      <div className="flex items-center gap-4">
+                        <button onClick={() => setGuests({ children: Math.max(0, plan.guests.children - 1) })} className="w-8 h-8 flex items-center justify-center border border-gold/40 text-forest hover:bg-gold/10 transition-colors">-</button>
+                        <span className="font-serif text-xl w-6 text-center text-forest">{plan.guests.children}</span>
+                        <button onClick={() => setGuests({ children: Math.min(6, plan.guests.children + 1) })} className="w-8 h-8 flex items-center justify-center border border-gold/40 text-forest hover:bg-gold/10 transition-colors">+</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </motion.div>
+                
+                <div className="flex justify-end">
+                  <button onClick={nextStep} className="inline-flex items-center gap-2 border border-gold bg-gold px-8 py-3.5 font-sans text-xs font-semibold uppercase tracking-button text-forest-dark hover:bg-gold-light transition-colors">
+                    Continue <ChevronRightIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             )}
 
-            {/* STEP 3: TRAVEL STYLE */}
+            {/* STEP 3: CHAMBERS */}
             {currentStep === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/30 bg-ivory-parchment p-8 sm:p-12"
-              >
-                <div className="flex items-center gap-3">
-                  <HeartIcon className="h-5 w-5 text-gold" />
-                  <span className="u-eyebrow text-[10px] text-gold">Step 03 of 08</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-forest">What is the spirit of your journey?</h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  Whether a romantic escape or a full estate gathering, we tailor the house rhythm accordingly.
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {travelStyles.map((style) => {
-                    const isSelected = plan.travelStyle === style.id;
-                    return (
-                      <button
-                        key={style.id}
-                        type="button"
-                        onClick={() => setTravelStyle(style.id)}
-                        className={`flex flex-col border p-6 text-left transition-all ${
-                          isSelected
-                            ? 'border-gold bg-forest text-ivory shadow-lg scale-102'
-                            : 'border-gold/30 bg-ivory text-ink hover:border-gold hover:bg-gold/10'
-                        }`}
-                      >
-                        <span className={`u-eyebrow text-[9px] ${isSelected ? 'text-gold-light' : 'text-gold-deep'}`}>
-                          Style Option
-                        </span>
-                        <h3 className="mt-2 font-serif text-xl font-medium">{style.label}</h3>
-                        <p className={`mt-3 text-xs leading-relaxed ${isSelected ? 'text-ivory/80' : 'text-ink-muted'}`}>
-                          {style.desc}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-10 flex justify-between">
-                  <Button variant="outline" onClick={() => setCurrentStep(2)}>
-                    <ChevronLeftIcon className="mr-2 h-4 w-4" /> Back
-                  </Button>
-                  <Button variant="primary" size="lg" onClick={() => setCurrentStep(4)}>
-                    Continue to Interests <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* STEP 4: INTERESTS */}
-            {currentStep === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/30 bg-ivory-parchment p-8 sm:p-12"
-              >
-                <div className="flex items-center gap-3">
-                  <CompassIcon className="h-5 w-5 text-gold" />
-                  <span className="u-eyebrow text-[10px] text-gold">Step 04 of 08</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-forest">Select your interests</h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  Choose what appeals to you most. We will shape your recommended daily itinerary around these themes.
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {interestOptions.map((item) => {
-                    const isSelected = plan.interests.includes(item.id);
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => toggleInterest(item.id)}
-                        className={`flex flex-col border p-6 text-left transition-all ${
-                          isSelected
-                            ? 'border-gold bg-forest text-ivory shadow-lg'
-                            : 'border-gold/30 bg-ivory text-ink hover:border-gold hover:bg-gold/10'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={`u-eyebrow text-[9px] ${
-                              isSelected ? 'text-gold-light' : 'text-gold-deep'
-                            }`}
-                          >
-                            Interest
-                          </span>
-                          {isSelected && <CheckIcon className="h-4 w-4 text-gold-light" />}
-                        </div>
-                        <h3 className="mt-2 font-serif text-xl font-medium">{item.label}</h3>
-                        <p className={`mt-3 text-xs leading-relaxed ${isSelected ? 'text-ivory/80' : 'text-ink-muted'}`}>
-                          {item.desc}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-10 flex justify-between">
-                  <Button variant="outline" onClick={() => setCurrentStep(3)}>
-                    <ChevronLeftIcon className="mr-2 h-4 w-4" /> Back
-                  </Button>
-                  <Button variant="primary" size="lg" onClick={() => setCurrentStep(5)}>
-                    Continue to Accommodation <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* STEP 5: ACCOMMODATION */}
-            {currentStep === 5 && (
-              <motion.div
-                key="step5"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/30 bg-ivory-parchment p-8 sm:p-12"
-              >
-                <div className="flex items-center gap-3">
-                  <HomeIcon className="h-5 w-5 text-gold" />
-                  <span className="u-eyebrow text-[10px] text-gold">Step 05 of 08</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-forest">Choose your Chambers</h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  Add one or more chambers to your stay request. (You can also select a private estate buyout).
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-10">
+                <div className="grid gap-6 sm:grid-cols-2">
                   {chambers.map((room) => {
                     const isAdded = plan.selectedChamberIds.includes(room.id);
                     return (
-                      <div
-                        key={room.id}
-                        className={`flex flex-col border transition-all ${
-                          isAdded ? 'border-gold bg-forest text-ivory' : 'border-gold/30 bg-ivory text-ink'
-                        }`}
-                      >
-                        <div className="aspect-[16/11] overflow-hidden">
-                          <img src={room.image} alt={room.title} className="h-full w-full object-cover" />
+                      <div key={room.id} className={`flex flex-col border transition-all duration-300 ${isAdded ? 'border-gold bg-forest-dark text-ivory shadow-lg scale-[1.02]' : 'border-gold/30 bg-ivory text-ink'}`}>
+                        <div className="aspect-[4/3] overflow-hidden relative">
+                          <img src={room.image || imagery.chamber} alt={room.name} className="h-full w-full object-cover" />
+                          {isAdded && <div className="absolute inset-0 bg-forest-dark/20" />}
                         </div>
-                        <div className="flex flex-1 flex-col p-6">
-                          <span
-                            className={`u-eyebrow text-[9px] ${
-                              isAdded ? 'text-gold-light' : 'text-gold-deep'
-                            }`}
-                          >
-                            {room.subtitle}
-                          </span>
-                          <h3 className="mt-1 font-serif text-xl font-medium">{room.title}</h3>
-                          <p className={`mt-3 flex-1 text-xs leading-relaxed ${isAdded ? 'text-ivory/80' : 'text-ink-muted'}`}>
-                            {room.description}
-                          </p>
-
-                          <div className="mt-6 pt-4 border-t border-gold/20 flex items-center justify-between">
-                            <span className="text-xs font-serif italic">Occupancy: {room.occupancy}</span>
-                            <button
-                              type="button"
-                              onClick={() => toggleChamber(room.id)}
-                              className={`inline-flex items-center gap-1.5 px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-button transition-colors ${
-                                isAdded
-                                  ? 'border border-gold bg-gold text-forest-dark'
-                                  : 'border border-forest bg-forest text-gold-light hover:bg-forest-deep'
-                              }`}
-                            >
-                              {isAdded ? (
-                                <>
-                                  <CheckIcon className="h-3 w-3" /> Selected
-                                </>
-                              ) : (
-                                <>
-                                  <PlusIcon className="h-3 w-3" /> Add to Stay
-                                </>
-                              )}
+                        <div className="flex flex-1 flex-col p-6 sm:p-8">
+                          <h3 className="font-serif text-2xl font-medium">{room.name}</h3>
+                          <p className={`mt-3 flex-1 text-sm leading-relaxed ${isAdded ? 'text-ivory/80' : 'text-ink-muted'}`}>{room.description}</p>
+                          <div className="mt-6 pt-6 border-t border-gold/20 flex flex-wrap items-center justify-between gap-4">
+                            <span className="text-xs font-serif italic text-gold-deep">{room.meta?.join(' · ')}</span>
+                            <button onClick={() => toggleChamber(room.id)} className={`inline-flex items-center gap-1.5 px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-button transition-colors ${isAdded ? 'border border-gold bg-gold text-forest-dark' : 'border border-forest bg-forest text-gold-light hover:bg-forest-deep'}`}>
+                              {isAdded ? <><CheckIcon className="h-3 w-3" /> Selected</> : <><PlusIcon className="h-3 w-3" /> Select</>}
                             </button>
                           </div>
                         </div>
@@ -511,83 +240,34 @@ export function PlanYourStay() {
                     );
                   })}
                 </div>
-
-                <div className="mt-10 flex justify-between">
-                  <Button variant="outline" onClick={() => setCurrentStep(4)}>
-                    <ChevronLeftIcon className="mr-2 h-4 w-4" /> Back
-                  </Button>
-                  <Button variant="primary" size="lg" onClick={() => setCurrentStep(6)}>
-                    Continue to Experiences <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
+                
+                <div className="flex justify-between border-t border-gold/20 pt-8">
+                  <button onClick={prevStep} className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-button text-forest hover:text-gold-deep transition-colors"><ChevronLeftIcon className="w-4 h-4" /> Back</button>
+                  <button onClick={nextStep} className="inline-flex items-center gap-2 border border-gold bg-gold px-8 py-3.5 font-sans text-xs font-semibold uppercase tracking-button text-forest-dark hover:bg-gold-light transition-colors">
+                    Continue <ChevronRightIcon className="w-4 h-4" />
+                  </button>
                 </div>
-              </motion.div>
+              </div>
             )}
 
-            {/* STEP 6: EXPERIENCES */}
-            {currentStep === 6 && (
-              <motion.div
-                key="step6"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/30 bg-ivory-parchment p-8 sm:p-12"
-              >
-                <div className="flex items-center gap-3">
-                  <CoffeeIcon className="h-5 w-5 text-gold" />
-                  <span className="u-eyebrow text-[10px] text-gold">Step 06 of 08</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-forest">Add Curated Experiences</h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  Enhance your stay with private tea walks, guided hikes, and bespoke garden dining.
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* STEP 4: EXPERIENCES */}
+            {currentStep === 4 && (
+              <div className="space-y-10">
+                <div className="grid gap-6 sm:grid-cols-2">
                   {experiences.map((exp) => {
                     const isAdded = plan.selectedExperienceIds.includes(exp.id);
                     return (
-                      <div
-                        key={exp.id}
-                        className={`flex flex-col border transition-all ${
-                          isAdded ? 'border-gold bg-forest text-ivory' : 'border-gold/30 bg-ivory text-ink'
-                        }`}
-                      >
+                      <div key={exp.id} className={`flex flex-col border transition-all duration-300 ${isAdded ? 'border-gold bg-forest-dark text-ivory shadow-lg scale-[1.02]' : 'border-gold/30 bg-ivory text-ink'}`}>
                         <div className="aspect-[16/10] overflow-hidden">
                           <img src={exp.image} alt={exp.title} className="h-full w-full object-cover" />
                         </div>
                         <div className="flex flex-1 flex-col p-6">
-                          <span
-                            className={`u-eyebrow text-[9px] ${
-                              isAdded ? 'text-gold-light' : 'text-gold-deep'
-                            }`}
-                          >
-                            {exp.category}
-                          </span>
-                          <h3 className="mt-1 font-serif text-xl font-medium">{exp.title}</h3>
-                          <p className={`mt-3 flex-1 text-xs leading-relaxed ${isAdded ? 'text-ivory/80' : 'text-ink-muted'}`}>
-                            {exp.shortDescription}
-                          </p>
-
+                          <span className={`font-sans text-[9px] uppercase tracking-[0.2em] mb-1 ${isAdded ? 'text-gold-light' : 'text-gold-deep'}`}>{exp.category}</span>
+                          <h3 className="font-serif text-xl font-medium">{exp.title}</h3>
+                          <p className={`mt-2 flex-1 text-xs leading-relaxed ${isAdded ? 'text-ivory/80' : 'text-ink-muted'}`}>{exp.description}</p>
                           <div className="mt-6 pt-4 border-t border-gold/20 flex items-center justify-between">
-                            <span className="text-[11px] text-gold-deep font-sans">{exp.duration}</span>
-                            <button
-                              type="button"
-                              onClick={() => toggleExperience(exp.id)}
-                              className={`inline-flex items-center gap-1.5 px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-button transition-colors ${
-                                isAdded
-                                  ? 'border border-gold bg-gold text-forest-dark'
-                                  : 'border border-forest bg-forest text-gold-light hover:bg-forest-deep'
-                              }`}
-                            >
-                              {isAdded ? (
-                                <>
-                                  <CheckIcon className="h-3 w-3" /> Added to Stay
-                                </>
-                              ) : (
-                                <>
-                                  <PlusIcon className="h-3 w-3" /> Add to Stay
-                                </>
-                              )}
+                            <button onClick={() => toggleExperience(exp.id)} className={`ml-auto inline-flex items-center gap-1.5 px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-button transition-colors ${isAdded ? 'border border-gold bg-gold text-forest-dark' : 'border border-forest bg-forest text-gold-light hover:bg-forest-deep'}`}>
+                              {isAdded ? <><CheckIcon className="h-3 w-3" /> Added</> : <><PlusIcon className="h-3 w-3" /> Add to Escape</>}
                             </button>
                           </div>
                         </div>
@@ -595,141 +275,178 @@ export function PlanYourStay() {
                     );
                   })}
                 </div>
-
-                <div className="mt-10 flex justify-between">
-                  <Button variant="outline" onClick={() => setCurrentStep(5)}>
-                    <ChevronLeftIcon className="mr-2 h-4 w-4" /> Back
-                  </Button>
-                  <Button variant="primary" size="lg" onClick={() => setCurrentStep(7)}>
-                    Generate Personalised Itinerary <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* STEP 7: PERSONALISED ITINERARY */}
-            {currentStep === 7 && (
-              <motion.div
-                key="step7"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/30 bg-ivory-parchment p-8 sm:p-12"
-              >
-                <div className="flex items-center gap-3">
-                  <SparklesIcon className="h-5 w-5 text-gold" />
-                  <span className="u-eyebrow text-[10px] text-gold">Step 07 of 08 · Dynamically Generated</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-forest">Your Personalised Journey</h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  Based on your {plan.travelStyle} travel style, selected interests, and curated experiences.
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                {/* Day-by-day Itinerary Schedule */}
-                <div className="mt-8 space-y-8">
-                  {itinerary.map((day) => (
-                    <div key={day.day} className="border border-gold/25 bg-ivory p-6 sm:p-8">
-                      <span className="u-eyebrow text-[10px] text-gold-deep">{day.day}</span>
-                      <h3 className="mt-1 font-serif text-2xl font-medium text-forest">{day.title}</h3>
-                      <ul className="mt-4 space-y-3">
-                        {day.items.map((item, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-sm text-ink-muted">
-                            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-gold/30 pt-6">
-                  <Button variant="outline" onClick={() => setCurrentStep(4)}>
-                    <ChevronLeftIcon className="mr-2 h-4 w-4" /> Edit My Journey
-                  </Button>
-                  <Button variant="primary" size="lg" onClick={() => setCurrentStep(8)}>
-                    Review Summary &amp; Send Request <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* STEP 8: SUMMARY & HANDOFF */}
-            {currentStep === 8 && (
-              <motion.div
-                key="step8"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="border border-gold/40 bg-forest text-ivory p-8 sm:p-12 shadow-xl"
-              >
-                <div className="flex items-center gap-3">
-                  <Crest className="h-10 w-8" tone="dark" />
-                  <span className="u-eyebrow text-[10px] text-gold-light">Step 08 of 08 · Final Summary</span>
-                </div>
-                <h2 className="mt-2 font-serif text-3xl text-ivory">Stay Request Summary</h2>
-                <p className="mt-2 text-sm text-ivory/80">
-                  Review your choices below. You can send an direct enquiry to host management or proceed into the simulated direct booking flow.
-                </p>
-                <GoldRule className="mt-6" width="w-12" />
-
-                <div className="mt-8 grid gap-6 sm:grid-cols-2">
-                  <div className="border border-ivory/15 bg-forest-deep p-6">
-                    <span className="u-eyebrow text-[9px] text-gold-light">Dates &amp; Guests</span>
-                    <p className="mt-2 font-serif text-xl text-ivory">
-                      {plan.dates.checkIn} to {plan.dates.checkOut} ({plan.dates.nights} Nights)
-                    </p>
-                    <p className="mt-1 text-sm text-ivory/70">
-                      {plan.guests.adults} Adults, {plan.guests.children} Children · {plan.travelStyle}
-                    </p>
-                  </div>
-
-                  <div className="border border-ivory/15 bg-forest-deep p-6">
-                    <span className="u-eyebrow text-[9px] text-gold-light">Selections</span>
-                    <p className="mt-2 font-serif text-xl text-ivory">
-                      {plan.selectedChamberIds.length} Chambers Chosen
-                    </p>
-                    <p className="mt-1 text-sm text-ivory/70">
-                      {plan.selectedExperienceIds.length} Experiences Added
-                    </p>
-                  </div>
-                </div>
-
-                {/* Next Steps Choices */}
-                <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-ivory/20 pt-8">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(1)}
-                    className="u-eyebrow text-xs text-gold-light hover:underline"
-                  >
-                    ← Edit Stay Choices
+                
+                <div className="flex justify-between border-t border-gold/20 pt-8">
+                  <button onClick={prevStep} className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-button text-forest hover:text-gold-deep transition-colors"><ChevronLeftIcon className="w-4 h-4" /> Back</button>
+                  <button onClick={nextStep} className="inline-flex items-center gap-2 border border-gold bg-gold px-8 py-3.5 font-sans text-xs font-semibold uppercase tracking-button text-forest-dark hover:bg-gold-light transition-colors">
+                    Continue <ChevronRightIcon className="w-4 h-4" />
                   </button>
+                </div>
+              </div>
+            )}
 
-                  <div className="flex flex-wrap items-center gap-4">
-                    <Link
-                      to="/enquire"
-                      className="inline-flex items-center gap-2 border border-gold/60 bg-gold/15 px-6 py-3.5 font-sans text-xs font-semibold uppercase tracking-button text-gold-light hover:bg-gold hover:text-forest-dark"
-                    >
-                      <SendIcon className="h-4 w-4" /> Send Stay Request
-                    </Link>
+            {/* STEP 5: DESTINATIONS */}
+            {currentStep === 5 && (
+              <div className="space-y-10">
+                <p className="text-ink-muted text-lg font-serif italic -mt-6">Add journeys from the Central Highlands into your stay.</p>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {beyondDestinations.filter(d => d.id !== 'the-bungalow').map((dest) => {
+                    const isAdded = plan.selectedDestinationIds.includes(dest.id);
+                    return (
+                      <div key={dest.id} className={`flex flex-col border transition-all duration-300 ${isAdded ? 'border-gold bg-forest-dark text-ivory shadow-lg scale-[1.02]' : 'border-gold/30 bg-ivory text-ink'}`}>
+                        <div className="aspect-[16/10] overflow-hidden">
+                          <img src={dest.image} alt={dest.imageAlt} className="h-full w-full object-cover" />
+                        </div>
+                        <div className="flex flex-1 flex-col p-6">
+                          <h3 className="font-serif text-xl font-medium">{dest.name}</h3>
+                          <p className={`mt-2 flex-1 text-xs leading-relaxed ${isAdded ? 'text-ivory/80' : 'text-ink-muted'}`}>{dest.tagline}</p>
+                          <div className="mt-6 pt-4 border-t border-gold/20 flex items-center justify-between">
+                            <button onClick={() => toggleDestination(dest.id)} className={`ml-auto inline-flex items-center gap-1.5 px-4 py-2 font-sans text-[10px] font-semibold uppercase tracking-button transition-colors ${isAdded ? 'border border-gold bg-gold text-forest-dark' : 'border border-forest bg-forest text-gold-light hover:bg-forest-deep'}`}>
+                              {isAdded ? <><CheckIcon className="h-3 w-3" /> Added</> : <><PlusIcon className="h-3 w-3" /> Add to Escape</>}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="flex justify-between border-t border-gold/20 pt-8">
+                  <button onClick={prevStep} className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-button text-forest hover:text-gold-deep transition-colors"><ChevronLeftIcon className="w-4 h-4" /> Back</button>
+                  <button onClick={nextStep} className="inline-flex items-center gap-2 border border-gold bg-gold px-8 py-3.5 font-sans text-xs font-semibold uppercase tracking-button text-forest-dark hover:bg-gold-light transition-colors">
+                    Continue <ChevronRightIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
 
-                    <Link
-                      to="/book"
-                      className="inline-flex items-center gap-2 border border-gold bg-gold px-6 py-3.5 font-sans text-xs font-semibold uppercase tracking-button text-forest-dark hover:bg-gold-light"
-                    >
-                      <span>Continue to Direct Booking</span>
-                      <ChevronRightIcon className="h-4 w-4" />
-                    </Link>
+            {/* STEP 6: DINING */}
+            {currentStep === 6 && (
+              <div className="space-y-10">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {diningOptions.map((dining) => {
+                    const isAdded = plan.selectedDiningIds.includes(dining.id);
+                    return (
+                      <button
+                        key={dining.id}
+                        onClick={() => toggleDining(dining.id)}
+                        className={`group relative text-left overflow-hidden border transition-all duration-500 ${isAdded ? 'border-gold ring-1 ring-gold shadow-xl' : 'border-gold/30 hover:border-gold/60'}`}
+                      >
+                        <div className="aspect-[16/9] overflow-hidden bg-forest/5 relative">
+                          <img src={dining.image} alt={dining.label} className="w-full h-full object-cover" />
+                          <div className={`absolute inset-0 bg-forest-dark transition-opacity duration-300 ${isAdded ? 'opacity-70' : 'opacity-40 group-hover:opacity-60'}`} />
+                          <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                            <h3 className="font-serif text-xl text-ivory">{dining.label}</h3>
+                            <p className="mt-2 font-sans text-xs text-ivory/80 leading-relaxed">{dining.desc}</p>
+                          </div>
+                          {isAdded && (
+                            <div className="absolute top-4 right-4 bg-gold text-forest-dark p-1 rounded-full">
+                              <CheckIcon className="w-3 h-3" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <div className="flex justify-between border-t border-gold/20 pt-8">
+                  <button onClick={prevStep} className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-button text-forest hover:text-gold-deep transition-colors"><ChevronLeftIcon className="w-4 h-4" /> Back</button>
+                  <button onClick={nextStep} className="inline-flex items-center gap-2 border border-gold bg-gold px-8 py-3.5 font-sans text-xs font-semibold uppercase tracking-button text-forest-dark hover:bg-gold-light transition-colors">
+                    Continue <ChevronRightIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 7: OCCASION */}
+            {currentStep === 7 && (
+              <div className="space-y-10">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {occasionOptions.map((occ) => {
+                    const isSelected = plan.occasion === occ.id;
+                    return (
+                      <button
+                        key={occ.id}
+                        onClick={() => { setOccasion(occ.id); setTimeout(nextStep, 400); }}
+                        className={`flex items-center justify-between p-6 border transition-all duration-300 ${isSelected ? 'border-gold bg-forest text-ivory shadow-lg' : 'border-gold/30 bg-ivory text-forest hover:border-gold/60 hover:bg-gold/5'}`}
+                      >
+                        <span className="font-serif text-xl">{occ.label}</span>
+                        {isSelected && <CheckIcon className="w-5 h-5 text-gold-light" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <div className="flex justify-between border-t border-gold/20 pt-8">
+                  <button onClick={prevStep} className="inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase tracking-button text-forest hover:text-gold-deep transition-colors"><ChevronLeftIcon className="w-4 h-4" /> Back</button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 8: SUMMARY */}
+            {currentStep === 8 && (
+              <div className="space-y-10">
+                <div className="border border-gold/40 bg-forest-dark p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                    <Crest className="h-48 w-40" tone="light" />
+                  </div>
+                  
+                  <div className="relative z-10">
+                    <span className="font-sans text-[10px] uppercase tracking-[0.3em] text-gold-light block mb-4">Your Itinerary Summary</span>
+                    <p className="font-serif italic text-lg sm:text-xl text-ivory/90 max-w-2xl leading-relaxed mb-8">
+                      {travelStyles.find(s => s.id === plan.travelStyle)?.desc || "A refined escape into the Central Highlands."}
+                    </p>
+
+                    <div className="grid sm:grid-cols-2 gap-x-12 gap-y-8 border-t border-gold/20 pt-8">
+                      <div>
+                        <span className="font-sans text-[9px] uppercase tracking-[0.2em] text-gold-deep block mb-2">When & Who</span>
+                        <p className="font-serif text-lg text-ivory">{plan.dates.checkIn} — {plan.dates.checkOut}</p>
+                        <p className="font-sans text-xs text-ivory/60 mt-1">{plan.dates.nights} Nights · {plan.guests.adults} Adults{plan.guests.children > 0 ? `, ${plan.guests.children} Children` : ''}</p>
+                      </div>
+                      
+                      <div>
+                        <span className="font-sans text-[9px] uppercase tracking-[0.2em] text-gold-deep block mb-2">Chamber</span>
+                        {plan.selectedChamberIds.length > 0 ? (
+                          plan.selectedChamberIds.map(id => <p key={id} className="font-serif text-lg text-ivory">{chambers.find(c => c.id === id)?.name}</p>)
+                        ) : (
+                          <p className="font-serif text-lg text-ivory/50 italic">None selected</p>
+                        )}
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <span className="font-sans text-[9px] uppercase tracking-[0.2em] text-gold-deep block mb-2">The Journey</span>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {plan.selectedExperienceIds.map(id => <span key={id} className="border border-gold/30 bg-gold/5 px-3 py-1 font-sans text-[10px] text-ivory">{experiences.find(e => e.id === id)?.title}</span>)}
+                          {plan.selectedDestinationIds.map(id => <span key={id} className="border border-ivory/20 bg-ivory/5 px-3 py-1 font-sans text-[10px] text-ivory/80">{beyondDestinations.find(d => d.id === id)?.name}</span>)}
+                          {plan.selectedDiningIds.map(id => <span key={id} className="border border-ivory/20 bg-ivory/5 px-3 py-1 font-sans text-[10px] text-ivory/80">{diningOptions.find(d => d.id === id)?.label}</span>)}
+                          {(plan.selectedExperienceIds.length === 0 && plan.selectedDestinationIds.length === 0) && <p className="font-serif text-sm text-ivory/50 italic">Open itinerary</p>}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
+                
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <Link to="/enquire" className="flex-1 inline-flex items-center justify-center gap-2 border border-gold/60 bg-ivory px-8 py-4 font-sans text-xs font-semibold uppercase tracking-button text-forest hover:bg-gold/10 transition-colors">
+                    Request This Escape
+                  </Link>
+                  <Link to="/book" className="flex-1 inline-flex items-center justify-center gap-2 border border-gold bg-gold px-8 py-4 font-sans text-xs font-semibold uppercase tracking-button text-forest-dark hover:bg-gold-light transition-colors">
+                    Check Availability <ChevronRightIcon className="w-4 h-4" />
+                  </Link>
+                </div>
+                
+                <div className="flex justify-center mt-6">
+                  <button onClick={prevStep} className="inline-flex items-center gap-2 font-sans text-[10px] font-semibold uppercase tracking-button text-forest/60 hover:text-forest transition-colors"><ChevronLeftIcon className="w-3 h-3" /> Edit Selections</button>
+                </div>
+              </div>
             )}
-          </AnimatePresence>
-        </Container>
-      </Section>
 
-      <SiteFooter />
+          </motion.div>
+
+        </div>
+      </div>
+
     </div>
   );
 }

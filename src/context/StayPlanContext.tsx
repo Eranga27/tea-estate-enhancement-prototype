@@ -18,6 +18,8 @@ export interface StayPlanState {
   interests: string[];
   selectedChamberIds: string[];
   selectedExperienceIds: string[];
+  selectedDestinationIds: string[];
+  selectedDiningIds: string[];
   occasion?: string;
   isBuyout: boolean;
   specialRequests: string;
@@ -35,6 +37,8 @@ interface StayPlanContextType {
   addExperience: (experienceId: string) => void;
   removeExperience: (experienceId: string) => void;
   toggleExperience: (experienceId: string) => void;
+  toggleDestination: (destinationId: string) => void;
+  toggleDining: (diningId: string) => void;
   setIsBuyout: (isBuyout: boolean) => void;
   setOccasion: (occasion: string) => void;
   setSpecialRequests: (requests: string) => void;
@@ -56,10 +60,13 @@ const defaultGuests: StayGuests = {
 const defaultPlan: StayPlanState = {
   dates: defaultDates,
   guests: defaultGuests,
-  travelStyle: 'Couple',
-  interests: ['tea', 'nature', 'table'],
-  selectedChamberIds: ['founders'],
-  selectedExperienceIds: ['tea-walks', 'tea-tastings'],
+  travelStyle: 'disappear',
+  interests: [],
+  selectedChamberIds: [],
+  selectedExperienceIds: [],
+  selectedDestinationIds: [],
+  selectedDiningIds: [],
+  occasion: 'none',
   isBuyout: false,
   specialRequests: ''
 };
@@ -71,9 +78,21 @@ export function StayPlanProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem('teabungalow_stay_plan');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (!parsed || typeof parsed !== 'object') return defaultPlan;
+        return { 
+          ...defaultPlan, 
+          ...parsed,
+          dates: parsed.dates || defaultPlan.dates,
+          guests: parsed.guests || defaultPlan.guests,
+          selectedChamberIds: parsed.selectedChamberIds || [],
+          selectedExperienceIds: parsed.selectedExperienceIds || [],
+          selectedDestinationIds: parsed.selectedDestinationIds || [],
+          selectedDiningIds: parsed.selectedDiningIds || [],
+          interests: parsed.interests || []
+        };
       } catch (e) {
-        // Fallback
+        return defaultPlan;
       }
     }
     return defaultPlan;
@@ -167,6 +186,30 @@ export function StayPlanProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const toggleDestination = (destinationId: string) => {
+    setPlan((prev) => {
+      const exists = prev.selectedDestinationIds.includes(destinationId);
+      return {
+        ...prev,
+        selectedDestinationIds: exists
+          ? prev.selectedDestinationIds.filter((id) => id !== destinationId)
+          : [...prev.selectedDestinationIds, destinationId]
+      };
+    });
+  };
+
+  const toggleDining = (diningId: string) => {
+    setPlan((prev) => {
+      const exists = prev.selectedDiningIds.includes(diningId);
+      return {
+        ...prev,
+        selectedDiningIds: exists
+          ? prev.selectedDiningIds.filter((id) => id !== diningId)
+          : [...prev.selectedDiningIds, diningId]
+      };
+    });
+  };
+
   const setIsBuyout = (isBuyout: boolean) => {
     setPlan((prev) => ({ ...prev, isBuyout }));
   };
@@ -199,6 +242,8 @@ export function StayPlanProvider({ children }: { children: React.ReactNode }) {
         addExperience,
         removeExperience,
         toggleExperience,
+        toggleDestination,
+        toggleDining,
         setIsBuyout,
         setOccasion,
         setSpecialRequests,

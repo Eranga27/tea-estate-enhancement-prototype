@@ -29,7 +29,7 @@ export function Home() {
         {/* 2. Introduction */}
         <IntroSection />
 
-        {/* Interactive Prototype Feature Banner */}
+        {/* Hero Section */ }
         <Section surface="parchment" spacing="tight" className="border-t border-b border-gold/30">
           <Container>
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between py-2">

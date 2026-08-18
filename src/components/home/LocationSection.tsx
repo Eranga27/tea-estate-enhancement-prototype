@@ -1,3 +1,8 @@
+/**
+ * DEPRECATED: This static presentation component is superseded by the new
+ * interactive architecture (Interactive Arrival Journey, Destination).
+ * Maintained here for reference and content extraction.
+ */
 import React from 'react';
 import { ExternalLinkIcon } from 'lucide-react';
 import { Container, Section } from '../Layout';
